@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="custom_min_width">270</dimen>
+
+    <dimen name="custom_max_width">500</dimen>
+</resources>
