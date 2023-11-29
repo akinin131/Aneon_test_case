@@ -3,12 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".app.fragment.MainFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".app.fragment.MainFragment"
+    android:id="@+id/mainFragmentL"
+    >
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewPayments"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:clipToPadding="false"
+        android:padding="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:scrollbars="vertical" />
 
 </FrameLayout>

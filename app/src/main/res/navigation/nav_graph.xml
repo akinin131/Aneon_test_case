@@ -3,24 +3,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/authorizationFragment">
+    app:startDestination="@id/splashScreenFragment">
 
     <fragment
         android:id="@+id/authorizationFragment"
         android:name="com.example.aneon_test_case.app.fragment.AuthorizationFragment"
         android:label="fragment_authorization"
-        tools:layout="@layout/fragment_authorization" >
+        tools:layout="@layout/fragment_authorization">
         <action
             android:id="@+id/action_authorizationFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.example.aneon_test_case.app.fragment.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" >
+        tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_authorizationFragment"
             app:destination="@id/authorizationFragment" />
+
     </fragment>
+
+    <fragment
+        android:id="@+id/splashScreenFragment"
+        android:name="com.example.aneon_test_case.app.fragment.SplashScreenFragment"
+        android:label="fragment_splash_screen"
+        tools:layout="@layout/fragment_splash_screen" />
+
+    <action
+        android:id="@+id/action_start_to_mainFragment"
+        app:destination="@id/mainFragment" />
+
+    <action
+        android:id="@+id/action_start_to_authorizationFragment"
+        app:destination="@id/authorizationFragment" />
+
 </navigation>

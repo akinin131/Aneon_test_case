@@ -4,17 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".app.fragment.AuthorizationFragment">
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    tools:context=".app.fragment.AuthorizationFragment"
+    android:id="@+id/authorizationFragmentL"
+    >
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textField"
@@ -24,6 +16,7 @@
         android:hint="@string/login"
         android:maxWidth="500dp"
         android:minWidth="270dp"
+        app:boxStrokeErrorColor="@color/error_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -42,6 +35,7 @@
         android:hint="@string/password"
         android:maxWidth="270dp"
         android:minWidth="270dp"
+        app:boxStrokeErrorColor="@color/error_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textField"

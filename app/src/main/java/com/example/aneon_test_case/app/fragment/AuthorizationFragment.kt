@@ -1,67 +1,101 @@
 package com.example.aneon_test_case.app.fragment
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.aneon_test_case.R
-import com.example.aneon_test_case.data.network.RetrofitClient
+import com.example.aneon_test_case.app.viewmodel.AuthorizationViewModel
 import com.example.aneon_test_case.databinding.FragmentAuthorizationBinding
-import com.example.aneon_test_case.domain.models.LoginRequest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class AuthorizationFragment : Fragment() {
 
     private var _binding: FragmentAuthorizationBinding? = null
-
     private val binding get() = _binding!!
+
+    private val viewModel: AuthorizationViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentAuthorizationBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
+
 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        performLogin()
+       /* lifecycleScope.launch {
+            DataStoreManager.readIsUserLoggedIn(requireContext()).collect { isLoggedIn ->
+
+                if (isLoggedIn) {
+                    // Пользователь авторизован, замените фрагмент на второй
+                    findNavController().navigate(R.id.action_authorizationFragment_to_mainFragment)
+                }
+
+            }
+        }*/
+        binding.authButton.setOnClickListener {
+            val login = binding.textField.editText?.text.toString()
+            val password = binding.textPassword.editText?.text.toString()
+
+            viewModel.login(login, password)
+
+
+
+        }
+        observeViewModel()
+
     }
 
-    private fun performLogin() {
-        val loginRequest = LoginRequest("demo", "12345")
+    private fun observeViewModel() {
+        println("Observing view model...")
+        viewModel.tokenLiveData.observe(viewLifecycleOwner) { token ->
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = RetrofitClient.apiService.login(loginRequest)
+            println("Received token: $token")
 
-                withContext(Dispatchers.Main) {
-                    // Извлекаем токен из ответа
-                    val token = response.body()?.token
+            findNavController().navigate(R.id.action_authorizationFragment_to_mainFragment)
 
+        }
 
-                    println("response:  $response")
-                    println("response token:  $token")
-                    binding.textView.text = "токен $token"
-                }
+        viewModel.errorLiveData.observe(viewLifecycleOwner) { error ->
+            // Обработка ошибки, например, отображение сообщения пользователю
+            println("Error: $error")
 
-            } catch (e: Exception) {
-                // Обработка ошибки
-                withContext(Dispatchers.Main) {
-                    // Отобразите сообщение об ошибке
-                    println("Error token: ${e.message}")
-                }
-            }
+            // Установка красного цвета EditText при ошибке
+            setEditTextColors(Color.RED)
+
+            // Установка ошибки в TextInputLayout
+            binding.textField.error = error
         }
     }
+
+    private fun resetEditTextColors() {
+        setEditTextColors(Color.BLACK)
+
+        binding.textField.error = null
+    }
+
+    private fun setEditTextColors(color: Int) {
+        binding.textField.boxStrokeColor = color
+        binding.textPassword.boxStrokeColor = color
+    }
+
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
+
+
+
