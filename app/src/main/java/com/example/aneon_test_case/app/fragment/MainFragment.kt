@@ -6,24 +6,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.aneon_test_case.app.adapter.PaymentsAdapter
-import com.example.aneon_test_case.data.network.ApiService
+import com.example.aneon_test_case.app.viewmodel.MainViewModel
 import com.example.aneon_test_case.data.datastore.DataStoreManager
 import com.example.aneon_test_case.databinding.FragmentMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
-
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
 
-    @Inject
-    lateinit var apiService: ApiService
+    private val mainViewModel: MainViewModel by viewModels()
 
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
@@ -41,60 +37,33 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Инициализация RecyclerView и адаптера
         paymentsAdapter = PaymentsAdapter()
         binding.recyclerViewPayments.adapter = paymentsAdapter
 
-        // Получение токена из DataStore
         lifecycleScope.launch(Dispatchers.Main) {
             DataStoreManager.readAuthToken(requireContext()).collect { token ->
-                // Проверка, что токен не пустой, иначе запрос не выполняется
                 if (!token.isNullOrBlank()) {
-                    getPaymentsData(token)
-                    println("MainFragment Token: $token")
 
-                } else {
-                    // Обработка ситуации, когда токен отсутствует или не удалось получить
-                    Toast.makeText(requireContext(), "Token is empty or not available", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
+                    mainViewModel.getPaymentsData(token)
 
-    private fun getPaymentsData(token: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = apiService.getPayments(token)
+                    mainViewModel.paymentsData.observe(viewLifecycleOwner) { payments ->
+                        payments?.let {
+                            paymentsAdapter.setPaymentsList(it)
+                        }
+                    }
 
-                if (response.isSuccessful) {
-                    val apiResponse = response.body()
-
-                    withContext(Dispatchers.Main) {
-                        if (apiResponse?.success == "true") {
-                            val payments = apiResponse.payments
-
-                            println("MainFragment Response: $payments")
-                            payments.let {
-                                paymentsAdapter.setPaymentsList(it)
-                            }
-
-                        } else {
-                            // Обработка случая, когда success не равен "true"
-                            Toast.makeText(requireContext(),
-                                "Error: ${apiResponse?.success}",
-                                Toast.LENGTH_SHORT).show()
+                    // Наблюдайте за ошибками в ViewModel
+                    mainViewModel.error.observe(viewLifecycleOwner) { error ->
+                        error?.let {
+                            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
-                    // Обработка ошибки при запросе списка платежей
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Error getting payments: ${response.code()}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                // Обработка общих ошибок, например, сетевых проблем
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Token is empty or not available",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -105,5 +74,6 @@ class MainFragment : Fragment() {
         _binding = null
     }
 }
+
 
 

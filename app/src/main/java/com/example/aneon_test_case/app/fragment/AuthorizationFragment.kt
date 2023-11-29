@@ -27,29 +27,16 @@ class AuthorizationFragment : Fragment() {
     ): View {
         _binding = FragmentAuthorizationBinding.inflate(inflater, container, false)
         return binding.root
-
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-       /* lifecycleScope.launch {
-            DataStoreManager.readIsUserLoggedIn(requireContext()).collect { isLoggedIn ->
 
-                if (isLoggedIn) {
-                    // Пользователь авторизован, замените фрагмент на второй
-                    findNavController().navigate(R.id.action_authorizationFragment_to_mainFragment)
-                }
-
-            }
-        }*/
         binding.authButton.setOnClickListener {
             val login = binding.textField.editText?.text.toString()
             val password = binding.textPassword.editText?.text.toString()
 
             viewModel.login(login, password)
-
-
 
         }
         observeViewModel()
@@ -57,23 +44,17 @@ class AuthorizationFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        println("Observing view model...")
-        viewModel.tokenLiveData.observe(viewLifecycleOwner) { token ->
 
-            println("Received token: $token")
+        viewModel.tokenLiveData.observe(viewLifecycleOwner) {
 
             findNavController().navigate(R.id.action_authorizationFragment_to_mainFragment)
 
         }
 
         viewModel.errorLiveData.observe(viewLifecycleOwner) { error ->
-            // Обработка ошибки, например, отображение сообщения пользователю
-            println("Error: $error")
 
-            // Установка красного цвета EditText при ошибке
             setEditTextColors(Color.RED)
 
-            // Установка ошибки в TextInputLayout
             binding.textField.error = error
         }
     }
@@ -88,8 +69,6 @@ class AuthorizationFragment : Fragment() {
         binding.textField.boxStrokeColor = color
         binding.textPassword.boxStrokeColor = color
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()
