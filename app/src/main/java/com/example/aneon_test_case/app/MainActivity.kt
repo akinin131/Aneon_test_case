@@ -29,15 +29,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        // Получите текущий фрагмент
+
         val currentFragment = getCurrentFragment()
 
-        // Проверьте, переопределен ли метод onBackPressed в текущем фрагменте
         if (currentFragment is OnBackPressedListener) {
-            // Вызовите метод onBackPressed у текущего фрагмента
+
             (currentFragment as OnBackPressedListener).onBackPressed()
         } else {
-            // В противном случае вызовите стандартное поведение кнопки "назад"
+
             super.onBackPressed()
         }
     }
