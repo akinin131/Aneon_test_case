@@ -1,8 +1,17 @@
 <resources>
-    <string name="app_name">Aneon_Test_Case</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
+    <string name="app_name">Aneon</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="password">password</string>
     <string name="login">login</string>
     <string name="auth">Авторизация</string>
+    <string name="payment_id">ID: %d</string>
+    <string name="payment_title">Title: %s</string>
+    <string name="payment_amount">Amount: %s</string>
+    <string name="payment_created">Created: %s</string>
+    <string name="not_available">N/A</string>
+    <string name="image">image</string>
+    <string name="exit">Выход</string>
+
 </resources>

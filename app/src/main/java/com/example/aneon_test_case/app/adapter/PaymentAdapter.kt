@@ -1,23 +1,26 @@
 package com.example.aneon_test_case.app.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aneon_test_case.R
 import com.example.aneon_test_case.data.models.Payment
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.aneon_test_case.databinding.ItemPaymentBinding
+import com.example.aneon_test_case.utils.convertTimestampToDateString
 
-class PaymentsAdapter : RecyclerView.Adapter<PaymentsAdapter.PaymentViewHolder>() {
+class PaymentsAdapter(private val context: Context) :
+    RecyclerView.Adapter<PaymentsAdapter.PaymentViewHolder>() {
 
     private var payments: List<Payment> = emptyList()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PaymentViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_payment, parent, false)
-        return PaymentViewHolder(view)
+        val binding = ItemPaymentBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return PaymentViewHolder(binding, context)
     }
 
     override fun onBindViewHolder(holder: PaymentViewHolder, position: Int) {
@@ -25,34 +28,53 @@ class PaymentsAdapter : RecyclerView.Adapter<PaymentsAdapter.PaymentViewHolder>(
         holder.bind(payment)
     }
 
-    override fun getItemCount(): Int {
-        return payments.size
+    override fun getItemCount(): Int = payments.size
+
+    fun setPaymentsList(newPayments: List<Payment>) {
+        val diffResult = DiffUtil.calculateDiff(
+            PaymentsDiffCallback(payments, newPayments)
+        )
+        payments = newPayments
+        diffResult.dispatchUpdatesTo(this)
     }
 
-    fun setPaymentsList(payments: List<Payment>) {
-        this.payments = payments
-        notifyDataSetChanged()
-    }
-
-    class PaymentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        private val textViewId: TextView = itemView.findViewById(R.id.textViewId)
-        private val textViewTitle: TextView = itemView.findViewById(R.id.textViewTitle)
-        private val textViewAmount: TextView = itemView.findViewById(R.id.textViewAmount)
-        private val textViewCreated: TextView = itemView.findViewById(R.id.textViewCreated)
-
+    class PaymentViewHolder(private val binding: ItemPaymentBinding, private val context: Context) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(payment: Payment) {
-            textViewId.text = "ID: ${payment.id}"
-            textViewTitle.text = "Title: ${payment.title}"
-            textViewAmount.text = "Amount: ${payment.amount ?: "N/A"}"
-            textViewCreated.text = "Created: ${convertTimestampToDateString(payment.created)}"
+            binding.textViewId.text = context.getString(R.string.payment_id, payment.id)
+            binding.textViewTitle.text = context.getString(R.string.payment_title, payment.title)
+            binding.textViewAmount.text = context.getString(
+                R.string.payment_amount,
+                payment.amount ?: context.getString(R.string.not_available)
+            )
+            binding.textViewCreated.text = context.getString(
+                R.string.payment_created,
+                payment.created.convertTimestampToDateString()
+            )
+
+        }
+    }
+
+    private class PaymentsDiffCallback(
+        private val oldList: List<Payment>,
+        private val newList: List<Payment>
+    ) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
         }
 
-        private fun convertTimestampToDateString(timestamp: Long): String {
-            val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-            val date = Date(timestamp * 1000)
-            return sdf.format(date)
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
         }
     }
 }
+
+
+
+
 

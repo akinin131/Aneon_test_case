@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import androidx.datastore.preferences.core.stringPreferencesKey
 
-
 object DataStoreManager {
     private const val PREFERENCES_NAME = "app_preferences"
     private val Context.dataStore: DataStore<androidx.datastore.preferences.core.Preferences>
@@ -22,25 +21,26 @@ object DataStoreManager {
             preferences[PreferencesKeys.AUTH_TOKEN] = token
         }
     }
-
     fun readAuthToken(context: Context): Flow<String?> {
         return context.dataStore.data.map { preferences ->
             preferences[PreferencesKeys.AUTH_TOKEN]
         }
     }
-
     suspend fun saveIsUserLoggedIn(context: Context, isLoggedIn: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_USER_LOGGED_IN] = isLoggedIn
         }
     }
-
     fun readIsUserLoggedIn(context: Context): Flow<Boolean> {
         return context.dataStore.data.map { preferences ->
             preferences[PreferencesKeys.IS_USER_LOGGED_IN] ?: false
         }
     }
-
+    suspend fun clearUserData(context: Context)  {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
     private object PreferencesKeys {
         val AUTH_TOKEN = stringPreferencesKey("auth_token")
         val IS_USER_LOGGED_IN = booleanPreferencesKey("is_user_logged_in")
